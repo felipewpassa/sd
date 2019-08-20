@@ -15,10 +15,8 @@ s = socket.socket()
 s.bind((host, port))
 s.listen(3)
 
-quantMaquinas = int(input("Quantidade de maquinas: "))
+quantMaquinas = int(input("Quantidade de slaves: "))
 auxQuantMaquinas = quantMaquinas
-
-auxQuantMaquinas = auxQuantMaquinas - 1
 
 print("Aguardando conexões...")
 
@@ -30,7 +28,9 @@ while auxQuantMaquinas:
     auxQuantMaquinas = auxQuantMaquinas - 1
 
 while True:
+    print()
     comando = input("-> ")
+    print()
     if (comando == "exit"):
         break
     elif (comando == "get"):
@@ -46,11 +46,9 @@ while True:
         for idx, conn in enumerate(all_connections):
             conn.send(comando.encode())
             timeData = conn.recv(20480).decode()
-            connIp, connPort = conn.getsockname()
-            print(connIp + " - " + str(timeData) + '\n')
-
+            connIp, connPort = conn.getpeername()
+            print(connIp + " - " + str(timeData))
             times.append({'ip': connIp, 'conn': conn, 'timestamp': timeData})
-
             acum += float(timeData)
             cont += 1
         media = acum / cont
@@ -60,8 +58,5 @@ while True:
         for time in times: #Calcula a diferenca entre a media e o horario de cada maquina
             #print("media " + str(media) + ' <- timestamp -> ' + str(time['timestamp']))
             diferenca = float(media) - float(time['timestamp'])
-            print("Diferenca " + str(time['ip']) + ' -> ' + str(diferenca))
-
+            print(str(time['ip']) + ' -> ' + str(diferenca))
             time['conn'].send(str(diferenca).encode())
-
-
